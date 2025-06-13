@@ -1,0 +1,17 @@
+{
+  "buildCommand": "npm run build",
+  "ignoreCommand": "echo 'Skipping ignored files check'",
+  "framework": "nextjs",
+  "cleanUrls": true,
+  "rewrites": [],
+  "outputDirectory": "out",
+  "functions": {
+    "api/**.ts": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "env": {
+    "NEXT_DISABLE_ESLINT": "true",
+    "TURBO_DISABLE_TYPECHECK": "true"
+  }
+}
