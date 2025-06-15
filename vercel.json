@@ -1,5 +1,5 @@
 {
-  "buildCommand": "NEXT_DISABLE_ESLINT=true TURBO_DISABLE_TYPECHECK=true npm run build",
+  "buildCommand": "NEXT_DISABLE_ESLINT=true TURBO_DISABLE_TYPECHECK=true next build",
   "ignoreCommand": "echo 'Skipping ignored files check'",
   "framework": "nextjs",
   "cleanUrls": true,
