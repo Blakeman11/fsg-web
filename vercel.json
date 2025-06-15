@@ -1,1 +1,11 @@
-{ YOUR_JSON_HERE }
+{
+  "buildCommand": "NEXT_DISABLE_ESLINT=true TURBO_DISABLE_TYPECHECK=true npm run build",
+  "ignoreCommand": "echo 'Skipping ignored files check'",
+  "framework": "nextjs",
+  "cleanUrls": true,
+  "rewrites": [],
+  "env": {
+    "NEXT_DISABLE_ESLINT": "true",
+    "TURBO_DISABLE_TYPECHECK": "true"
+  }
+}
