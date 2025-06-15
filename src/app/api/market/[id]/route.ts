@@ -9,24 +9,24 @@ export async function GET(
 
   try {
     const card = await prisma.marketCard.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!card) {
       return new Response(JSON.stringify({ error: 'Card not found' }), {
         status: 404,
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
       });
     }
 
     return new Response(JSON.stringify(card), {
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
     });
   } catch (error) {
     console.error('Error fetching market card:', error);
     return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
     });
   }
 }
