@@ -1,39 +1,34 @@
-import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { NextRequest } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
-const prisma = new PrismaClient();
-
-export async function GET(_: Request, { params }: { params: { id: string } }) {
-  const id = parseInt(params.id);
-
-  if (isNaN(id)) {
-    return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
-  }
+export async function GET(
+  req: NextRequest,
+  context: { params: { id: string } }
+) {
+  const { id } = context.params;
 
   try {
     const card = await prisma.marketCard.findUnique({
-      where: { id },
+      where: {
+        id: id,
+      },
     });
 
-    if (!card || card.sold) {
-      return NextResponse.json({ error: 'Card not found' }, { status: 404 });
+    if (!card) {
+      return new Response(JSON.stringify({ error: 'Card not found' }), {
+        status: 404,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
-    return NextResponse.json(card);
+    return new Response(JSON.stringify(card), {
+      headers: { 'Content-Type': 'application/json' },
+    });
   } catch (error) {
-    console.error('❌ Error fetching market card:', error);
-    return NextResponse.json({ error: 'Fetch failed' }, { status: 500 });
-  }
-}
-
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
-  const id = parseInt(params.id);
-
-  try {
-    await prisma.marketCard.delete({ where: { id } });
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('❌ Error deleting market card:', error);
-    return NextResponse.json({ error: 'Delete failed' }, { status: 500 });
+    console.error('Error fetching market card:', error);
+    return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
