@@ -41,7 +41,7 @@ export default function MarketCardDetail({ card }: { card: MarketCard }) {
 
   const isInCart = cart.some(
     (item) =>
-      item.id === card.id &&
+      item.id === card.id.toString() &&
       item.grading === grading &&
       item.addHolder === holder
   );
@@ -49,7 +49,7 @@ export default function MarketCardDetail({ card }: { card: MarketCard }) {
   const handleAddToCart = () => {
     if (isInCart) return;
     addToCart({
-      id: card.id,
+      id: card.id.toString(),
       title: card.title,
       price: totalPrice,
       grading,
