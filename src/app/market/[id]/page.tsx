@@ -1,10 +1,12 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import MarketCardDetail from '@/components/MarketCardDetails'; // ✅ Correct component name
+import MarketCardDetail from '@/components/MarketCardDetails';
 
-interface PageProps {
-  params: { id: string };
-}
+type PageProps = {
+  params: {
+    id: string;
+  };
+};
 
 export default async function MarketCardPage({ params }: PageProps) {
   const id = parseInt(params.id);
