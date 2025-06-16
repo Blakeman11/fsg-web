@@ -26,18 +26,26 @@ export async function POST(req: Request) {
       quantity: 1,
     }));
 
+    const domain =
+      process.env.NODE_ENV === 'production'
+        ? 'https://freedomservicegrading.com'
+        : 'http://localhost:3000';
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       customer_email: email,
       line_items,
       mode: 'payment',
-      success_url: 'http://localhost:3000/success',
-      cancel_url: 'http://localhost:3000/cart',
+      success_url: `${domain}/success`,
+      cancel_url: `${domain}/cart`,
     });
 
     return NextResponse.json({ url: session.url });
   } catch (err: any) {
     console.error(err);
-    return NextResponse.json({ error: 'Stripe checkout failed' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Stripe checkout failed' },
+      { status: 500 }
+    );
   }
 }
