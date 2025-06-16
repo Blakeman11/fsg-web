@@ -1,6 +1,7 @@
+// src/app/market/[id]/page.tsx
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import MarketCardDetail from '@/components/MarketCardDetails'; // ✅ match actual file name
+import MarketCardDetail from '@/components/MarketCardDetails'; // ✅ filename must match!
 
 export default async function MarketCardPage({
   params,
