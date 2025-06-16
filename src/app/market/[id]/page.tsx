@@ -1,12 +1,17 @@
+import { type Metadata, type GetServerSidePropsContext } from 'next';
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import MarketCardDetail from '@/components/MarketCardDetail';
+import dynamic from 'next/dynamic';
 
-export default function MarketCardPage({ params }: { params: { id: string } }) {
-  return <MarketCardServerPage params={params} />;
-}
+const MarketCardDetail = dynamic(() => import('@/components/MarketCardDetail'), { ssr: false });
 
-async function MarketCardServerPage({ params }: { params: { id: string } }) {
+type PageProps = {
+  params: {
+    id: string;
+  };
+};
+
+export default async function MarketCardPage({ params }: PageProps) {
   const id = parseInt(params.id);
   const card = await prisma.marketCard.findUnique({ where: { id } });
 
