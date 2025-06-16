@@ -1,14 +1,12 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import MarketCardDetail from '@/components/MarketCardDetails';
+import MarketCardDetail from '@/components/MarketCardDetails'; // ✅ match actual file name
 
-type PageProps = {
-  params: {
-    id: string;
-  };
-};
-
-export default async function MarketCardPage({ params }: PageProps) {
+export default async function MarketCardPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const id = parseInt(params.id);
   const card = await prisma.marketCard.findUnique({ where: { id } });
 
