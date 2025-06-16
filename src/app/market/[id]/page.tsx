@@ -1,9 +1,6 @@
-import { type Metadata, type GetServerSidePropsContext } from 'next';
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import dynamic from 'next/dynamic';
-
-const MarketCardDetail = dynamic(() => import('@/components/MarketCardDetail'), { ssr: false });
+import MarketCardDetail from '@/components/MarketCardDetail'; // ✅ just import directly
 
 type PageProps = {
   params: {
