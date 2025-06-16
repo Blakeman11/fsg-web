@@ -1,20 +1,26 @@
-import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
-const prisma = new PrismaClient();
-
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
-  const id = parseInt(params.id);
-  const { status } = await request.json();
+export async function PATCH(
+  req: NextRequest,
+  context: { params: { id: string } }
+) {
+  const { id } = context.params;
 
   try {
-    await prisma.cardSubmission.update({
+    const body = await req.json();
+
+    const updated = await prisma.gradingSubmission.update({
       where: { id },
-      data: { status },
+      data: body,
     });
-    return NextResponse.json({ success: true });
+
+    return NextResponse.json(updated);
   } catch (error) {
-    console.error('❌ Error updating status:', error);
-    return NextResponse.json({ error: 'Update failed' }, { status: 500 });
+    console.error('❌ Error updating submission:', error);
+    return NextResponse.json(
+      { error: 'Failed to update submission' },
+      { status: 500 }
+    );
   }
 }
