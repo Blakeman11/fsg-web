@@ -3,11 +3,11 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  const parsedId = parseInt(params.id);
+export async function DELETE(req: Request) {
+  const url = new URL(req.url);
+  const id = url.pathname.split('/').pop();
+
+  const parsedId = parseInt(id || '');
   if (isNaN(parsedId)) {
     return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
   }
