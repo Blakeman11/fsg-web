@@ -4,8 +4,8 @@ import { useCart } from '@/context/CartContext';
 import Image from 'next/image';
 
 export default function MarketCard({ card }) {
-  const { cartItems, addToCart } = useCart();
-  const alreadyInCart = cartItems.some((item) => item.id === card.id);
+  const { cart, addToCart } = useCart();
+const alreadyInCart = cart.some((item) => item.id === card.id);
 
   return (
     <div className="border rounded shadow-sm p-4 bg-white">

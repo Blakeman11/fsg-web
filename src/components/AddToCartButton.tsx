@@ -1,12 +1,12 @@
 'use client';
 
-import { useCart } from '@/lib/useCart';
+import { useCart } from '@/context/CartContext';
 
 type Props = {
-  id: number;
+  id: string;
   title: string;
   price: number;
-  imageUrl: string;
+  imageUrl?: string;
 };
 
 export default function AddToCartButton({ id, title, price, imageUrl }: Props) {

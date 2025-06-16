@@ -1,48 +1,43 @@
-import Stripe from 'stripe';
+// /src/app/api/checkout/route.ts
 import { NextResponse } from 'next/server';
+import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2023-10-16',
+  apiVersion: '2025-05-28.basil',
 });
 
 export async function POST(req: Request) {
-  const { cart, shipping } = await req.json();
-
   try {
-    const lineItems = cart.map((item: any) => ({
+    const { cart, email } = await req.json();
+
+    const line_items = cart.map((item: any) => ({
       price_data: {
         currency: 'usd',
         product_data: {
-          name: item.title || `Item ${item.id}`,
+          name: item.title,
+          description: item.grading
+            ? `Grading: ${item.grading}${item.addHolder ? ' + Holder' : ''}`
+            : item.addHolder
+              ? 'Includes Holder'
+              : 'No extras',
         },
-        unit_amount: Math.round((item.price || 0) * 100),
+        unit_amount: Math.round(item.price * 100),
       },
       quantity: 1,
     }));
 
-    // Add shipping as its own line item
-    if (shipping && shipping > 0) {
-      lineItems.push({
-        price_data: {
-          currency: 'usd',
-          product_data: { name: 'Shipping' },
-          unit_amount: Math.round(shipping * 100),
-        },
-        quantity: 1,
-      });
-    }
-
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      line_items: lineItems,
+      customer_email: email,
+      line_items,
       mode: 'payment',
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout`,
+      success_url: 'http://localhost:3000/success',
+      cancel_url: 'http://localhost:3000/cart',
     });
 
     return NextResponse.json({ url: session.url });
-  } catch (err) {
-    console.error('❌ Stripe session error:', err);
-    return NextResponse.json({ error: 'Checkout failed' }, { status: 500 });
+  } catch (err: any) {
+    console.error(err);
+    return NextResponse.json({ error: 'Stripe checkout failed' }, { status: 500 });
   }
 }

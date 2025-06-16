@@ -10,7 +10,7 @@ export default function CartPage() {
     shippingCost,
     totalItemPrice,
     totalWithShipping,
-  } = useCart();
+  } = useCart(); // No need to cast or import type
 
   return (
     <main className="max-w-3xl mx-auto p-6 space-y-6">
@@ -28,9 +28,7 @@ export default function CartPage() {
               <div className="text-sm">
                 <p className="font-semibold">{item.title}</p>
                 {item.grading && (
-                  <p className="text-xs text-gray-600">
-                    Grading: {item.grading}
-                  </p>
+                  <p className="text-xs text-gray-600">Grading: {item.grading}</p>
                 )}
                 {item.addHolder && (
                   <p className="text-xs text-gray-600">Includes Holder</p>

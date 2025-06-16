@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import Header from "@/components/Header";
-import CartDrawer from "@/components/CartDrawer"; // ✅ This is the missing line
+import CartDrawer from "@/components/CartDrawer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,13 +26,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-  <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-    <CartProvider> {/* 👈 Move this up */}
-      <Header />
-      {children}
-    </CartProvider>
-  </body>
-</html>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <head />
+      <body>
+        <CartProvider>
+  <Header />
+  {children}
+</CartProvider>
+      </body>
+    </html>
   );
 }

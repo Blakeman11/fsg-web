@@ -6,11 +6,25 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+interface MarketCardInput {
+  title?: string;
+  playerName?: string;
+  year?: string | number;
+  brand?: string;
+  variation?: string;
+  cardNumber?: string | number;
+  category?: string;
+  grade?: string;
+  price?: number;
+  imageUrl?: string;
+  [key: string]: any;
+}
+
 async function main() {
   const filePath = path.join(process.cwd(), 'Market.xlsx');
   const workbook = read(fs.readFileSync(filePath));
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
-  const records = utils.sheet_to_json(sheet);
+  const records = utils.sheet_to_json<MarketCardInput>(sheet);
 
   console.log(`📊 Found ${records.length} rows in Excel`);
 
@@ -33,7 +47,7 @@ async function main() {
       cardNumber: String(card.cardNumber || ''),
       category: String(card.category || ''),
       grade: String(card.grade || 'Raw'),
-      price: parseFloat(card.price),
+      price: card.price,
       imageUrl: String(card.imageUrl),
     });
   }

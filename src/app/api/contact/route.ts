@@ -10,7 +10,7 @@ export async function POST(req: Request) {
       from: process.env.FROM_EMAIL!,
       to: ['help@fsg.com'], // or whatever address you want to receive support mail
       subject: `Contact Form Submission from ${name}`,
-      reply_to: email,
+      replyTo: email, // ✅ Correct key here
       text: message,
     });
 

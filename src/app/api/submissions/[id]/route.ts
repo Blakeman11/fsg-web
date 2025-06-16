@@ -1,23 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function PATCH(req: NextRequest, { params }: any) {
-  const id = params.id;
+export async function PATCH(req: NextRequest, context: any) {
+  const id = parseInt(context.params.id);
 
   try {
     const body = await req.json();
 
-    const updated = await prisma.gradingSubmission.update({
+    const updated = await prisma.cardSubmission.update({
       where: { id },
       data: body,
     });
 
-    return NextResponse.json(updated);
+    return NextResponse.json({ success: true, updated });
   } catch (error) {
-    console.error('❌ Error updating submission:', error);
-    return NextResponse.json(
-      { error: 'Failed to update submission' },
-      { status: 500 }
-    );
+    console.error('❌ Failed to update submission:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

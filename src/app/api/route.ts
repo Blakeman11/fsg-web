@@ -1,27 +1,12 @@
-import { NextRequest } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
-export async function GET(req: NextRequest, context: { params: { id: string } }) {
-  const { id } = context.params
-
+export async function GET(req: NextRequest) {
   try {
-    const card = await prisma.marketCard.findUnique({
-      where: {
-        id: id,
-      },
-    })
-
-    if (!card) {
-      return new Response(JSON.stringify({ error: 'Card not found' }), { status: 404 })
-    }
-
-    return new Response(JSON.stringify(card), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
+    const cards = await prisma.marketCard.findMany();
+    return NextResponse.json(cards);
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Server error' }), { status: 500 })
+    console.error('❌ Error fetching market cards:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
