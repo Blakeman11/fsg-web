@@ -1,13 +1,12 @@
-// src/app/market/[id]/page.tsx
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import MarketCardDetail from '@/components/MarketCardDetails'; // ✅ filename must match!
+import MarketCardDetail from '@/components/MarketCardDetail';
 
-export default async function MarketCardPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function MarketCardPage({ params }: { params: { id: string } }) {
+  return <MarketCardServerPage params={params} />;
+}
+
+async function MarketCardServerPage({ params }: { params: { id: string } }) {
   const id = parseInt(params.id);
   const card = await prisma.marketCard.findUnique({ where: { id } });
 
