@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import MarketCardDetail from '@/components/MarketCardDetail'; // ✅ just import directly
+import MarketCardDetail from '@/components/MarketCardDetail';
 
 export default async function MarketCardPage({
   params,
