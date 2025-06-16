@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "NEXT_DISABLE_ESLINT=true TURBO_DISABLE_TYPECHECK=true next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.9.0",
