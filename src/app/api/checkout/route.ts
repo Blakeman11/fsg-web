@@ -41,4 +41,27 @@ export async function POST(req: Request) {
       cancel_url: `${domain}/cart`,
     });
 
-    // 
+    // 🔁 Reduce inventory
+    for (const item of cart) {
+      const existing = await prisma.marketCard.findUnique({
+        where: { id: item.id },
+      });
+
+      if (existing && existing.available && existing.quantity > 0) {
+        const newQty = existing.quantity - 1;
+        await prisma.marketCard.update({
+          where: { id: item.id },
+          data: {
+            quantity: newQty,
+            available: newQty > 0,
+          },
+        });
+      }
+    }
+
+    return NextResponse.json({ url: session.url });
+  } catch (err: any) {
+    console.error('❌ Stripe checkout failed', err);
+    return NextResponse.json({ error: 'Stripe checkout failed' }, { status: 500 });
+  }
+} // ← 👈 YOU FORGOT THIS BAD BOY
