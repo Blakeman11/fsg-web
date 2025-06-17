@@ -1,6 +1,7 @@
 // /src/app/api/checkout/route.ts
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
+import { prisma } from '@/lib/prisma';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-05-28.basil',
@@ -40,12 +41,4 @@ export async function POST(req: Request) {
       cancel_url: `${domain}/cart`,
     });
 
-    return NextResponse.json({ url: session.url });
-  } catch (err: any) {
-    console.error(err);
-    return NextResponse.json(
-      { error: 'Stripe checkout failed' },
-      { status: 500 }
-    );
-  }
-}
+    // 

@@ -31,24 +31,25 @@ model CardSubmission {
   level        String
   insurance    Boolean
   status       String    @default("received")
-  playerName   String?   // ✅ temporarily optional
-  serviceLevel String?   // ✅ temporarily optional
+  playerName   String?
+  serviceLevel String?
   createdAt    DateTime  @default(now())
 }
 
 model MarketCard {
-  id         Int     @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   title      String
   playerName String
-  year       Int?    // <- make it optional
+  year       Int?
   brand      String
   cardNumber String
   category   String
-  condition  String? // <- make it optional for now
+  condition  String?
   grade      String
   price      Float
   imageUrl   String
   variation  String?
-  available  Boolean @default(true)
+  available  Boolean  @default(true)
+  quantity   Int      @default(1)  // ✅ NEW: inventory support
   createdAt  DateTime @default(now())
 }
