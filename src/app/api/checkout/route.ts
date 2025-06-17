@@ -64,4 +64,4 @@ export async function POST(req: Request) {
     console.error('❌ Stripe checkout failed', err);
     return NextResponse.json({ error: 'Stripe checkout failed' }, { status: 500 });
   }
-} // ← 👈 YOU FORGOT THIS BAD BOY
+}

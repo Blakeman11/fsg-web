@@ -1,67 +1,64 @@
-// /src/app/api/checkout/route.ts
-import { NextResponse } from 'next/server';
-import Stripe from 'stripe';
-import { prisma } from '@/lib/prisma';
+// /src/app/joshandsk/page.tsx
+'use client';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-05-28.basil',
-});
+import { useEffect, useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
-export async function POST(req: Request) {
-  try {
-    const { cart, email } = await req.json();
+interface MarketCard {
+  id: number;
+  title: string;
+  playerName: string;
+  year?: number;
+  brand: string;
+  cardNumber: string;
+  category: string;
+  condition?: string;
+  grade: string;
+  price: number;
+  imageUrl: string;
+  variation?: string;
+  quantity: number;
+  available: boolean;
+}
 
-    const line_items = cart.map((item: any) => ({
-      price_data: {
-        currency: 'usd',
-        product_data: {
-          name: item.title,
-          description: item.grading
-            ? `Grading: ${item.grading}${item.addHolder ? ' + Holder' : ''}`
-            : item.addHolder
-              ? 'Includes Holder'
-              : 'No extras',
-        },
-        unit_amount: Math.round(item.price * 100),
-      },
-      quantity: 1,
-    }));
+export default function AdminMarket() {
+  const [cards, setCards] = useState<MarketCard[]>([]);
 
-    const domain =
-      process.env.NODE_ENV === 'production'
-        ? 'https://freedomservicegrading.com'
-        : 'http://localhost:3000';
+  useEffect(() => {
+    fetch('/api/market') // Make sure this API route returns all cards
+      .then((res) => res.json())
+      .then((data) => setCards(data));
+  }, []);
 
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      customer_email: email,
-      line_items,
-      mode: 'payment',
-      success_url: `${domain}/success`,
-      cancel_url: `${domain}/cart`,
-    });
-
-    // 🔁 Reduce inventory
-    for (const item of cart) {
-      const existing = await prisma.marketCard.findUnique({
-        where: { id: item.id },
-      });
-
-      if (existing && existing.available && existing.quantity > 0) {
-        const newQty = existing.quantity - 1;
-        await prisma.marketCard.update({
-          where: { id: item.id },
-          data: {
-            quantity: newQty,
-            available: newQty > 0,
-          },
-        });
-      }
-    }
-
-    return NextResponse.json({ url: session.url });
-  } catch (err: any) {
-    console.error('❌ Stripe checkout failed', err);
-    return NextResponse.json({ error: 'Stripe checkout failed' }, { status: 500 });
-  }
+  return (
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Admin Market Dashboard</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {cards.map((card) => (
+          <Card key={card.id}>
+            <CardContent className="p-4">
+              <img
+                src={card.imageUrl}
+                alt={card.title}
+                className="w-full h-48 object-cover rounded mb-2"
+              />
+              <div className="font-semibold">{card.title}</div>
+              <div className="text-sm text-gray-500">{card.playerName} ({card.year})</div>
+              <div className="text-sm">{card.brand} #{card.cardNumber}</div>
+              <div className="text-sm mb-1">Grade: {card.grade}</div>
+              {card.variation && <div className="text-sm italic mb-1">{card.variation}</div>}
+              <div className="text-sm mb-1">Qty: {card.quantity}</div>
+              <Badge variant={card.available ? 'default' : 'destructive'}>
+                {card.available ? 'Available' : 'Sold Out'}
+              </Badge>
+              <div className="mt-2 font-bold">${card.price.toFixed(2)}</div>
+              {/* Optional: add an edit or delete button here */}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
 }
