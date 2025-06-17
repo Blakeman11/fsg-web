@@ -1,4 +1,3 @@
-// /src/app/api/checkout/route.ts
 import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { prisma } from '@/lib/prisma';
@@ -10,6 +9,10 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export async function POST(req: Request) {
   try {
     const { cart, email } = await req.json();
+
+    if (!email || !cart || cart.length === 0) {
+      return NextResponse.json({ error: 'Missing email or cart data' }, { status: 400 });
+    }
 
     const line_items = cart.map((item: any) => ({
       price_data: {
@@ -41,13 +44,13 @@ export async function POST(req: Request) {
       cancel_url: `${domain}/cart`,
     });
 
-    // 🔁 Reduce inventory
+    // 🧮 Reduce inventory if applicable
     for (const item of cart) {
       const existing = await prisma.marketCard.findUnique({
         where: { id: item.id },
       });
 
-      if (existing && existing.available && existing.quantity > 0) {
+      if (existing?.quantity && existing.quantity > 0) {
         const newQty = existing.quantity - 1;
         await prisma.marketCard.update({
           where: { id: item.id },
@@ -61,7 +64,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ url: session.url });
   } catch (err: any) {
-    console.error('❌ Stripe checkout failed', err);
-    return NextResponse.json({ error: 'Stripe checkout failed' }, { status: 500 });
+    console.error('❌ Stripe checkout failed:', err.message || err);
+    return NextResponse.json({ error: err.message || 'Stripe checkout failed' }, { status: 500 });
   }
 }
