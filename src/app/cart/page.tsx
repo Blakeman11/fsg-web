@@ -35,7 +35,7 @@ export default function CartPage() {
                 )}
                 <button
                   className="text-red-500 text-xs mt-1"
-                  onClick={() => removeFromCart(item.id)}
+                  onClick={() => removeFromCart(Number(item.id))}
                 >
                   Remove
                 </button>
