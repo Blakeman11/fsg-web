@@ -1,3 +1,5 @@
+// src/app/api/market/cards/[id]/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
@@ -14,7 +16,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Delete Error:', error);
-    return NextResponse.json({ error: 'Failed to delete' }, { status: 500 });
+    console.error('DELETE /api/market/cards/[id] error:', error);
+    return NextResponse.json({ error: 'Failed to delete card' }, { status: 500 });
   }
 }
