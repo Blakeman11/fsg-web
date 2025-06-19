@@ -25,3 +25,16 @@ export async function deleteMarketCard(id: number) {
     throw error;
   }
 }
+
+// Update a market card by ID
+export async function updateMarketCard(id: number, data: any) {
+  try {
+    await prisma.marketCard.update({
+      where: { id },
+      data,
+    });
+  } catch (error) {
+    console.error('❌ Failed to update market card:', error);
+    throw error;
+  }
+}
