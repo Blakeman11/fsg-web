@@ -1,13 +1,11 @@
-// src/app/api/market/cards/[id]/route.ts
-
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
 export async function DELETE(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
-  const id = parseInt(context.params.id);
+  const id = parseInt(params.id);
 
   try {
     await prisma.marketCard.delete({
