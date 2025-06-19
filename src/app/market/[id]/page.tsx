@@ -3,15 +3,14 @@ import { notFound } from 'next/navigation';
 import MarketCardDetail from '@/components/MarketCardDetail';
 
 interface PageProps {
-  params: Promise<{ id: string }> | { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default async function MarketCardPage({ params }: PageProps) {
-  const resolvedParams = await Promise.resolve(params); // works for both promise & object
-  const id = parseInt(resolvedParams.id);
+  const { id } = await params;
 
   const card = await prisma.marketCard.findUnique({
-    where: { id },
+    where: { id: parseInt(id) },
   });
 
   if (!card) return notFound();
