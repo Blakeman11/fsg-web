@@ -37,8 +37,9 @@ export async function POST(req: Request) {
         const cartItems = JSON.parse(metadataCart);
 
         for (const item of cartItems) {
-          const { id, title, price, grading, addHolder, quantity = 1 } = item;
+          const { id, title, price, quantity = 1 } = item;
 
+          // Handle market card inventory
           if (id && !isNaN(parseInt(id))) {
             const marketCard = await prisma.marketCard.findUnique({ where: { id: parseInt(id) } });
 
@@ -54,13 +55,12 @@ export async function POST(req: Request) {
             }
           }
 
+          // Save order to database
           await prisma.order.create({
             data: {
               email: email!,
               itemName: title,
               quantity,
-              gradingOption: grading || null,
-              includesHolder: !!addHolder,
               total: price * quantity,
             },
           });
