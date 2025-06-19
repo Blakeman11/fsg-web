@@ -1,24 +1,20 @@
-// app/api/market/cards/[id]/route.ts
+// src/app/api/market/cards/[id]/route.ts
+
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 
-const prisma = new PrismaClient();
-
-export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  const id = parseInt(params.id);
-
-  if (isNaN(id)) {
-    return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
-  }
-
+export async function DELETE(req: Request, context: { params: { id: string } }) {
   try {
+    const id = parseInt(context.params.id);
+
+    if (isNaN(id)) {
+      return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
+    }
+
     await prisma.marketCard.delete({ where: { id } });
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('❌ DELETE error:', error);
+  } catch (err) {
+    console.error('Delete error:', err);
     return NextResponse.json({ error: 'Failed to delete card' }, { status: 500 });
   }
 }
