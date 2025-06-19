@@ -12,6 +12,6 @@ export async function GET() {
     return NextResponse.json(cards);
   } catch (error) {
     console.error('❌ Failed to fetch market cards:', error);
-    return NextResponse.json([], { status: 500 });
+    return NextResponse.json({ error: 'Failed to load cards' }, { status: 500 });
   }
 }

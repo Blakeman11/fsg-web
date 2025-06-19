@@ -49,7 +49,6 @@ model MarketCard {
   price      Float
   imageUrl   String
   variation  String?
-  available  Boolean  @default(true)
-  quantity   Int      @default(1)  // ✅ NEW: inventory support
+  quantity   Int      @default(1)  // Inventory support
   createdAt  DateTime @default(now())
 }

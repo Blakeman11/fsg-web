@@ -12,71 +12,122 @@ export type CartItem = {
   id: string;
   title: string;
   price: number;
+  quantity: number; // how many the user is buying
+  maxAvailable?: number; // from DB (to validate)
   grading?: string;
   addHolder?: boolean;
   imageUrl?: string;
+  cardDetails?: {
+    name: string;
+    year: string;
+    brand: string;
+    cardNumber: string;
+    category: string;
+    level: string;
+    insurance: boolean;
+  };
+  customerDetails?: {
+    fullName: string;
+    email: string;
+    address: string;
+    city: string;
+    state: string;
+    zip: string;
+  };
 };
 
 export type CartContextType = {
   cart: CartItem[];
   addToCart: (item: CartItem) => void;
-  removeFromCart: (id: string) => void;
+  removeFromCart: (index: number) => void;
   clearCart: () => void;
   shippingCost: number;
   totalItemPrice: number;
   totalWithShipping: number;
+  email: string;
+  setEmail: (email: string) => void;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [email, setEmail] = useState('');
   const [cartReady, setCartReady] = useState(false);
 
-  // Load cart from localStorage on mount
   useEffect(() => {
-    const stored = localStorage.getItem('fsg-cart');
-    if (stored) setCart(JSON.parse(stored));
+    const storedCart = localStorage.getItem('fsg-cart');
+    const storedEmail = localStorage.getItem('fsg-email');
+
+    if (storedCart) setCart(JSON.parse(storedCart));
+    if (storedEmail) setEmail(storedEmail);
     setCartReady(true);
   }, []);
 
-  // Sync to localStorage on cart updates
   useEffect(() => {
     if (cartReady) {
       localStorage.setItem('fsg-cart', JSON.stringify(cart));
     }
   }, [cart, cartReady]);
 
+  useEffect(() => {
+    if (cartReady) {
+      localStorage.setItem('fsg-email', email);
+    }
+  }, [email, cartReady]);
+
   const addToCart = (item: CartItem) => {
-    // ✅ Validation: block incomplete entries
+    const cardDetails = item.cardDetails ?? {
+      name: '',
+      year: '',
+      brand: '',
+      cardNumber: '',
+      category: '',
+      level: '',
+      insurance: false,
+    };
+
+    const customerDetails = item.customerDetails ?? {
+      fullName: '',
+      email: '',
+      address: '',
+      city: '',
+      state: '',
+      zip: '',
+    };
+
+    const validCard = Object.values(cardDetails).every((val) => val !== '');
+    const validCustomer = Object.values(customerDetails).every((val) => val !== '');
+    const requiresValidation = validCard || validCustomer;
+
     if (
-      !item.id ||
-      !item.title ||
-      typeof item.price !== 'number' ||
-      isNaN(item.price)
+      requiresValidation &&
+      (!validCard || !validCustomer || typeof item.price !== 'number')
     ) {
-      console.warn('🛑 Rejected invalid cart item:', item);
-      alert('Please complete all required fields before adding to cart.');
+      alert('Please complete all fields before adding to cart.');
       return;
     }
 
-    // ✅ Prevent exact duplicates
-    const isDuplicate = cart.some((existing) => JSON.stringify(existing) === JSON.stringify(item));
-    if (isDuplicate) {
-      alert('This item is already in your cart.');
+    const alreadyInCartQty = cart
+      .filter((c) => c.id === item.id)
+      .reduce((sum, c) => sum + c.quantity, 0);
+
+    const max = item.maxAvailable ?? item.quantity;
+
+    if (alreadyInCartQty + item.quantity > max) {
+      alert('You are adding more than the available stock.');
       return;
     }
 
-    setCart((prev) => [...prev, item]);
+    setCart((prev) => [...prev, { ...item, cardDetails, customerDetails }]);
+
+    if (customerDetails.email) {
+      setEmail(customerDetails.email);
+    }
   };
 
-  const removeFromCart = (id: string) => {
-    if (!id) {
-      console.warn('⚠️ Tried to remove item without valid ID');
-      return;
-    }
-
-    setCart((prev) => prev.filter((item) => item.id !== id));
+  const removeFromCart = (index: number) => {
+    setCart((prev) => prev.filter((_, i) => i !== index));
   };
 
   const clearCart = () => {
@@ -85,7 +136,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const shippingCost = Math.min(4.95 + Math.max(cart.length - 1, 0) * 0.5, 15.95);
-  const totalItemPrice = cart.reduce((sum, item) => sum + item.price, 0);
+  const totalItemPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const totalWithShipping = totalItemPrice + shippingCost;
 
   if (!cartReady) return null;
@@ -100,6 +151,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         shippingCost,
         totalItemPrice,
         totalWithShipping,
+        email,
+        setEmail,
       }}
     >
       {children}

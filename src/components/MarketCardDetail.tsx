@@ -1,138 +1,132 @@
-// src/components/MarketCardDetail.tsx
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useCart } from '@/context/CartContext';
 import Image from 'next/image';
-import Link from 'next/link';
-import { useState } from 'react';
 
 interface MarketCard {
   id: number;
   title: string;
   price: number;
-  playerName: string;
-  year: number;
-  brand: string;
+  imageUrl: string;
   variation?: string;
-  cardNumber: string;
-  category: string;
-  grade: string;
-  imageUrl?: string;
+  quantity: number;
+  grading?: string;
+  addHolder?: boolean;
 }
 
 export default function MarketCardDetail({ card }: { card: MarketCard }) {
   const { cart, addToCart } = useCart();
-  const [gradingOption, setGradingOption] = useState('');
+  const [grading, setGrading] = useState('');
   const [addHolder, setAddHolder] = useState(false);
+  const [addedCount, setAddedCount] = useState(0);
+  const [purchaseQty, setPurchaseQty] = useState(1);
 
-  const gradingPrices: Record<string, number> = {
-    Regular: 10,
-    Express: 20,
-    FreedomGem: 40,
-    Bulk: 8,
-  };
+  useEffect(() => {
+    const matching = cart.filter((item) => item.id === String(card.id));
+    setAddedCount(matching.length);
+  }, [cart, card.id]);
 
-  const grading = gradingOption || null;
-  const holder = grading ? false : addHolder;
+  const availableQty = card.quantity - addedCount;
   const totalPrice =
-    card.price +
-    (grading ? gradingPrices[grading] : 0) +
-    (holder ? 1 : 0);
-
-  const isInCart = cart.some(
-    (item) =>
-      item.id === card.id.toString() &&
-      item.grading === grading &&
-      item.addHolder === holder
-  );
+    card.price * purchaseQty +
+    (grading === 'Regular' ? 10 : grading === 'Express' ? 20 : grading === 'Freedom Gem' ? 40 : grading === 'Bulk' ? 8 : 0) +
+    (grading ? 0 : addHolder ? 1 : 0);
 
   const handleAddToCart = () => {
-    if (isInCart) return;
-    addToCart({
-      id: card.id.toString(),
-      title: card.title,
-      price: totalPrice,
-      grading,
-      addHolder: holder,
-    });
+    if (availableQty <= 0 || purchaseQty <= 0) return;
+
+    for (let i = 0; i < purchaseQty; i++) {
+      addToCart({
+        id: String(card.id),
+        title: card.title,
+        price:
+          card.price +
+          (grading === 'Regular' ? 10 : grading === 'Express' ? 20 : grading === 'Freedom Gem' ? 40 : grading === 'Bulk' ? 8 : 0) +
+          (grading ? 0 : addHolder ? 1 : 0),
+        imageUrl: card.imageUrl,
+        grading,
+        addHolder,
+      });
+    }
   };
 
   return (
-    <main className="max-w-3xl mx-auto p-6 space-y-6">
-      <h1 className="text-3xl font-bold">{card.title}</h1>
+    <div className="max-w-4xl mx-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div>
+        <Image
+          src={card.imageUrl}
+          alt={card.title}
+          width={400}
+          height={600}
+          className="rounded-lg border"
+        />
+      </div>
 
-      <div className="flex flex-col sm:flex-row gap-8 items-start">
-        {card.imageUrl && (
-          <Image
-            src={card.imageUrl}
-            alt={card.title}
-            width={300}
-            height={420}
-            className="rounded border"
-          />
+      <div className="space-y-4">
+        <h1 className="text-2xl font-bold">{card.title}</h1>
+        <p className="text-gray-600">{card.variation}</p>
+        <p className="text-blue-600 font-bold text-xl">${totalPrice.toFixed(2)}</p>
+        <p className="text-sm text-gray-500">
+          Qty Available: {availableQty} {addedCount > 0 && `(In Cart: ${addedCount})`}
+        </p>
+
+        <div className="space-y-2">
+          <label className="block text-sm font-medium">Grading Option:</label>
+          <select
+            value={grading}
+            onChange={(e) => setGrading(e.target.value)}
+            className="border px-3 py-2 rounded w-full"
+          >
+            <option value="">None</option>
+            <option value="Regular">Regular ($10)</option>
+            <option value="Express">Express ($20)</option>
+            <option value="Freedom Gem">Freedom Gem ($40)</option>
+            <option value="Bulk">Bulk ($8)</option>
+          </select>
+        </div>
+
+        {!grading && (
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="holder"
+              checked={addHolder}
+              onChange={(e) => setAddHolder(e.target.checked)}
+            />
+            <label htmlFor="holder" className="text-sm">
+              Add magnetic holder (+$1)
+            </label>
+          </div>
         )}
 
-        <div className="text-sm space-y-2">
-          <p><strong>ID:</strong> {card.id}</p>
-          <p><strong>Player:</strong> {card.playerName}</p>
-          <p><strong>Year:</strong> {card.year}</p>
-          <p><strong>Brand:</strong> {card.brand}</p>
-          <p><strong>Variation:</strong> {card.variation || 'N/A'}</p>
-          <p><strong>Card #:</strong> {card.cardNumber}</p>
-          <p><strong>Category:</strong> {card.category}</p>
-          <p><strong>Grade:</strong> {card.grade}</p>
-
-          <div className="mt-4">
-            <label className="block font-semibold mb-1">Optional Grading:</label>
+        {availableQty > 1 && (
+          <div className="space-y-1">
+            <label className="block text-sm font-medium">Quantity:</label>
             <select
-              value={gradingOption}
-              onChange={(e) => setGradingOption(e.target.value)}
+              value={purchaseQty}
+              onChange={(e) => setPurchaseQty(parseInt(e.target.value))}
               className="border px-3 py-2 rounded w-full"
             >
-              <option value="">None</option>
-              <option value="Regular">Regular - $10</option>
-              <option value="Express">Express - $20</option>
-              <option value="FreedomGem">Freedom Gem - $40</option>
-              <option value="Bulk">Bulk (10+ cards) - $8</option>
+              {Array.from({ length: availableQty }, (_, i) => i + 1).map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
             </select>
           </div>
+        )}
 
-          {!grading && (
-            <div className="mt-2">
-              <label className="inline-flex items-center">
-                <input
-                  type="checkbox"
-                  checked={addHolder}
-                  onChange={(e) => setAddHolder(e.target.checked)}
-                  className="mr-2"
-                />
-                Add $1 magnetic holder
-              </label>
-            </div>
-          )}
-
-          <p className="text-lg font-semibold text-blue-600 mt-4">
-            Total: ${totalPrice.toFixed(2)}
-          </p>
-
-          <button
-            onClick={handleAddToCart}
-            disabled={isInCart}
-            className={`mt-2 px-4 py-2 rounded transition text-white ${
-              isInCart ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
-            }`}
-          >
-            {isInCart ? 'Already in Cart' : 'Add to Cart'}
-          </button>
-
-          <Link
-            href="/market"
-            className="block mt-4 text-sm text-blue-500 hover:underline"
-          >
-            ← Back to Market
-          </Link>
-        </div>
+        <button
+          onClick={handleAddToCart}
+          disabled={availableQty <= 0}
+          className={`px-4 py-2 rounded text-white ${
+            availableQty <= 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+          }`}
+        >
+          {availableQty <= 0 ? 'Sold Out' : 'Add to Cart'}
+        </button>
       </div>
-    </main>
+    </div>
   );
 }

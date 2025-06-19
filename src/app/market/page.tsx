@@ -1,4 +1,3 @@
-// src/app/market/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -91,6 +90,7 @@ export default function MarketPage() {
                 {card.variation || 'N/A'}
               </p>
               <p className="text-blue-600 font-bold mt-1">${card.price}</p>
+              <p className="text-xs text-gray-500">Qty Available: {card.quantity}</p>
             </div>
           </Link>
         ))}

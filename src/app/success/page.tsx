@@ -8,20 +8,19 @@ export default function SuccessPage() {
   const { clearCart } = useCart();
 
   useEffect(() => {
-    clearCart();
+    clearCart(); // clear everything on load
   }, [clearCart]);
 
   return (
-    <main className="text-center p-10">
-      <h1 className="text-3xl font-bold text-green-600">✅ Payment Successful</h1>
-      <p className="mt-4 text-lg">Thank you for your purchase. We'll ship your card soon!</p>
-
+    <div className="max-w-xl mx-auto p-6 text-center">
+      <h1 className="text-2xl font-bold mb-4">✅ Payment Successful</h1>
+      <p className="mb-6">Thanks for your purchase! Your cards will be prepared and shipped soon.</p>
       <Link
-        href="/"
-        className="mt-6 inline-block text-blue-600 hover:text-blue-800 underline transition-all"
+        href="/market"
+        className="inline-block bg-black text-white px-6 py-3 rounded hover:bg-gray-900"
       >
-        Back to FSG
+        Return to Market
       </Link>
-    </main>
+    </div>
   );
 }
