@@ -16,7 +16,7 @@ export default function AddToCartButton({ id, title, price, imageUrl }: Props) {
 
   return (
     <button
-      onClick={() => addToCart({ id, title, price, imageUrl })}
+      onClick={() => addToCart({ id, title, price, imageUrl, quantity: 1 })}
       disabled={isInCart}
       className={`mt-4 py-2 px-4 rounded text-white transition ${
         isInCart ? 'bg-gray-400 cursor-not-allowed' : 'bg-black hover:bg-gray-800'
