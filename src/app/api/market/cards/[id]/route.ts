@@ -1,11 +1,13 @@
+// src/app/api/market/cards/[id]/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export const dynamic = 'force-dynamic'; // ✅ still good here
+export const dynamic = 'force-dynamic'; // 🟢 Required for dynamic API routes
 
-export async function DELETE(req: NextRequest) {
+export async function DELETE(req: NextRequest): Promise<NextResponse> {
   const url = new URL(req.url);
-  const id = parseInt(url.pathname.split('/').pop()!); // ✅ extract from URL
+  const id = parseInt(url.pathname.split('/').pop()!); // 🧠 Pull the [id] param from URL
 
   try {
     await prisma.marketCard.delete({
