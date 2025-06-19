@@ -13,7 +13,7 @@ export default function Header() {
     <header className="w-full bg-white shadow-md px-4 py-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
       {/* Logo */}
       <Link href="/" className="flex items-center gap-2 text-xl font-bold text-black hover:opacity-80">
-        <Image src="/flag-icon.png" alt="Flag" width={24} height={24} />
+        <Image src="/flag-icon.png" alt="Freedom Service Grading logo" width={24} height={24} />
         Freedom Service Grading
       </Link>
 
@@ -24,7 +24,7 @@ export default function Header() {
         <Link href="/mailing" className="hover:text-blue-600">Mailing Details</Link>
         <Link href="/grading" className="hover:text-blue-600">Grading Info</Link>
         <Link href="/comps" className="hover:text-blue-600">Comps</Link>
-        <Link href="/checkout" className="relative hover:text-blue-600">
+        <Link href="/cart" className="relative hover:text-blue-600">
           View Cart
           {cart.length > 0 && (
             <span className="ml-1 bg-blue-600 text-white text-xs rounded-full px-2 py-0.5">
@@ -47,7 +47,7 @@ export default function Header() {
               <Link href="/mailing">Mailing Details</Link>
               <Link href="/grading">Grading Info</Link>
               <Link href="/comps">Comps</Link>
-              <Link href="/checkout" className="relative">
+              <Link href="/cart" className="relative">
                 View Cart
                 {cart.length > 0 && (
                   <span className="ml-1 bg-blue-600 text-white text-xs rounded-full px-2 py-0.5">
