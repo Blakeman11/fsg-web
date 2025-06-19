@@ -2,14 +2,9 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import MarketCardDetail from '@/components/MarketCardDetail';
 
-type MarketCardPageProps = {
-  params: {
-    id: string;
-  };
-};
-
-export default async function MarketCardPage({ params }: MarketCardPageProps) {
-  const id = parseInt(params.id);
+export default async function MarketCardPage({ params }: Promise<{ params: { id: string } }>) {
+  const resolved = await params;
+  const id = parseInt(resolved.id);
 
   if (isNaN(id)) return notFound();
 
