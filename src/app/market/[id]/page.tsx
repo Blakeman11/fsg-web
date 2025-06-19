@@ -1,16 +1,16 @@
-// src/app/market/[id]/page.tsx
-
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import MarketCardDetail from '@/components/MarketCardDetail';
 
-interface MarketCardPageProps {
+type MarketCardPageProps = {
   params: {
     id: string;
   };
-}
+};
 
-export default async function MarketCardPage({ params }: MarketCardPageProps) {
+export default async function MarketCardPage({
+  params,
+}: MarketCardPageProps): Promise<JSX.Element> {
   const id = parseInt(params.id);
 
   if (isNaN(id)) return notFound();
