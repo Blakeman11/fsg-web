@@ -6,12 +6,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-05-28.basil',
 });
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 export async function POST(req: Request) {
   const buf = await req.arrayBuffer();
   const rawBody = Buffer.from(buf);
@@ -39,7 +33,6 @@ export async function POST(req: Request) {
         for (const item of cartItems) {
           const { id, title, price, quantity = 1 } = item;
 
-          // Handle market card inventory
           if (id && !isNaN(parseInt(id))) {
             const marketCard = await prisma.marketCard.findUnique({ where: { id: parseInt(id) } });
 
@@ -55,7 +48,6 @@ export async function POST(req: Request) {
             }
           }
 
-          // Save order to database
           await prisma.order.create({
             data: {
               email: email!,
