@@ -49,7 +49,16 @@ model MarketCard {
   price      Float
   imageUrl   String
   variation  String?
-  quantity   Int      @default(1)  // Inventory support
-  available  Boolean  @default(true) // Added field
+  quantity   Int      @default(1)     // Inventory support
+  available  Boolean  @default(true)  // Track if card is still active
   createdAt  DateTime @default(now())
+}
+
+model Order {
+  id        Int      @id @default(autoincrement())
+  email     String
+  itemName  String
+  quantity  Int
+  total     Float
+  createdAt DateTime @default(now())
 }

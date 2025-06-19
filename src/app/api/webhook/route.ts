@@ -6,12 +6,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-05-28.basil',
 });
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 export async function POST(req: Request) {
   const buf = await req.arrayBuffer();
   const rawBody = Buffer.from(buf);
@@ -31,19 +25,28 @@ export async function POST(req: Request) {
     const session = event.data.object as Stripe.Checkout.Session;
     const email = session.customer_email;
 
-    console.log('✅ Payment confirmed for:', email);
+    if (!email) {
+      console.warn('⚠️ No email in session');
+      return NextResponse.json({ received: true });
+    }
 
-    const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
+    try {
+      const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
 
-    for (const item of lineItems.data) {
-      await prisma.order.create({
-        data: {
-          email: email!,
-          itemName: item.description,
-          quantity: item.quantity ?? 1,
-          total: (item.amount_total ?? 0) / 100,
-        },
-      });
+      for (const item of lineItems.data) {
+        await prisma.order.create({
+          data: {
+            email,
+            itemName: item.description,
+            quantity: item.quantity ?? 1,
+            total: (item.amount_total ?? 0) / 100,
+          },
+        });
+      }
+
+      console.log(`✅ Saved ${lineItems.data.length} order(s) for ${email}`);
+    } catch (err) {
+      console.error('❌ Failed to save order(s):', err);
     }
   }
 
