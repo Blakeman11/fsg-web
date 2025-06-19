@@ -5,7 +5,7 @@ import MarketCardDetail from '@/components/MarketCardDetail';
 export default async function MarketCardPage({
   params,
 }: {
-  params: Promise{ id: string };
+  params: { id: string };
 }) {
   const id = parseInt(params.id);
 
