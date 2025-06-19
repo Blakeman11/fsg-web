@@ -71,29 +71,30 @@ export default function SubmitPage() {
     const id = uuid();
 
     addToCart({
-      id,
-      title: `${name} ${brand} #${cardNumber}`,
-      price,
-      grading,
-      addHolder: insurance,
-      cardDetails: {
-        name,
-        year,
-        brand,
-        cardNumber,
-        category,
-        level: grading,
-        insurance,
-      },
-      customerDetails: {
-        fullName,
-        email,
-        address,
-        city,
-        state,
-        zip,
-      },
-    });
+  id,
+  title: `${name} ${brand} #${cardNumber}`,
+  price,
+  grading,
+  addHolder: insurance,
+  quantity: 1, // <-- 👈 this is the fix
+  cardDetails: {
+    name,
+    year,
+    brand,
+    cardNumber,
+    category,
+    level: grading,
+    insurance,
+  },
+  customerDetails: {
+    fullName,
+    email,
+    address,
+    city,
+    state,
+    zip,
+  },
+});
 
     alert('Card added to cart!');
 
