@@ -1,6 +1,6 @@
 'use server';
 
-import { getAllMarketCards, updateMarketCard, deleteMarketCard } from '@/lib/market';
+import { getMarketCards, updateMarketCard, deleteMarketCard } from '@/lib/market';
 import Image from 'next/image';
 
 export default async function JoshAndSkPage() {
