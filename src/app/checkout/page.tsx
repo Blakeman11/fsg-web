@@ -1,104 +1,143 @@
 'use client';
 
 import { useCart } from '@/context/CartContext';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function CheckoutPage() {
-  const { cart, removeFromCart, email, setEmail } = useCart();
-  const router = useRouter();
+  const {
+    cart,
+    shippingCost,
+    totalItemPrice,
+    totalWithShipping,
+    setEmail,
+  } = useCart();
+
+  const [form, setForm] = useState({
+    fullName: '',
+    address: '',
+    city: '',
+    state: '',
+    zip: '',
+    email: '',
+  });
+
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const subtotal = cart.reduce(
-    (sum, item) => sum + (item.price ?? 0) * (item.quantity ?? 1),
-    0
-  );
-
-  const shipping = cart.length > 0
-    ? Math.min(4.95 + Math.max(cart.length - 1, 0) * 0.5, 15.95)
-    : 0;
-
-  const total = subtotal + shipping;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (name === 'email') setEmail(value);
+  };
 
   const handleCheckout = async () => {
-    if (!email || cart.length === 0) {
-      alert('Please enter your email and add items to the cart.');
+    const { email, fullName, address, city, state, zip } = form;
+
+    if (!email || !fullName || !address || !city || !state || !zip) {
+      alert('Please fill in all fields');
       return;
     }
 
     setLoading(true);
 
-    try {
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cartItems: cart, email }),
-      });
+    const res = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        cartItems: cart,
+        email,
+        shippingInfo: { fullName, address, city, state, zip },
+      }),
+    });
 
-      const data = await res.json();
-
-      if (data?.url) {
-        router.push(data.url);
-      } else {
-        alert('Checkout failed.');
-      }
-    } catch (err) {
-      console.error('Checkout error:', err);
-      alert('Something went wrong. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    const data = await res.json();
+    setLoading(false);
+    if (data.url) router.push(data.url);
+    else alert('Checkout failed');
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 space-y-6">
+    <main className="max-w-xl mx-auto p-6 space-y-6">
       <h1 className="text-2xl font-bold">Checkout</h1>
 
-      {cart.length === 0 && <p>Your cart is empty.</p>}
-
-      {cart.map((item, index) => (
+      {cart.map((item, idx) => (
         <div
-          key={index}
-          className="flex justify-between items-center border rounded px-4 py-2 bg-white shadow"
+          key={idx}
+          className="flex justify-between items-start border p-3 rounded"
         >
-          <div className="flex flex-col">
-            <span>{item.title}</span>
-            <span className="text-sm text-gray-500">Quantity: {item.quantity ?? 1}</span>
+          <div className="text-sm">
+            <p className="font-semibold">{item.title}</p>
+            <p className="text-xs text-gray-500">Quantity: {item.quantity}</p>
           </div>
-          <div className="flex items-center gap-4">
-            <span>${(item.price ?? 0).toFixed(2)}</span>
-            <button
-              onClick={() => removeFromCart(index)}
-              className="text-sm text-red-500 hover:underline"
-            >
-              Remove
-            </button>
-          </div>
+          <p className="text-sm font-semibold">${item.price.toFixed(2)}</p>
         </div>
       ))}
 
-      {cart.length > 0 && (
-        <>
-          <div className="text-right text-sm">Shipping: ${shipping.toFixed(2)}</div>
-          <div className="text-right font-bold text-lg">Total: ${total.toFixed(2)}</div>
+      <div className="border-t pt-4 text-sm space-y-1">
+        <p className="flex justify-between">
+          <span>Shipping:</span>
+          <span>${shippingCost.toFixed(2)}</span>
+        </p>
+        <p className="flex justify-between font-semibold text-lg">
+          <span>Total:</span>
+          <span>${totalWithShipping.toFixed(2)}</span>
+        </p>
+      </div>
 
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full border px-4 py-2 rounded mt-4"
-            placeholder="Enter your email"
-          />
+      <div className="space-y-4">
+        <input
+          name="email"
+          placeholder="Email"
+          type="email"
+          value={form.email}
+          onChange={handleChange}
+          className="w-full border px-3 py-2 rounded"
+        />
+        <input
+          name="fullName"
+          placeholder="Full Name"
+          value={form.fullName}
+          onChange={handleChange}
+          className="w-full border px-3 py-2 rounded"
+        />
+        <input
+          name="address"
+          placeholder="Address"
+          value={form.address}
+          onChange={handleChange}
+          className="w-full border px-3 py-2 rounded"
+        />
+        <input
+          name="city"
+          placeholder="City"
+          value={form.city}
+          onChange={handleChange}
+          className="w-full border px-3 py-2 rounded"
+        />
+        <input
+          name="state"
+          placeholder="State"
+          value={form.state}
+          onChange={handleChange}
+          className="w-full border px-3 py-2 rounded"
+        />
+        <input
+          name="zip"
+          placeholder="ZIP Code"
+          value={form.zip}
+          onChange={handleChange}
+          className="w-full border px-3 py-2 rounded"
+        />
+      </div>
 
-          <button
-            onClick={handleCheckout}
-            disabled={loading}
-            className="w-full bg-black text-white py-3 rounded hover:bg-gray-900 mt-4"
-          >
-            {loading ? 'Processing…' : 'Proceed to Payment'}
-          </button>
-        </>
-      )}
-    </div>
+      <button
+        onClick={handleCheckout}
+        disabled={loading}
+        className="w-full bg-black text-white py-3 rounded hover:bg-gray-900"
+      >
+        {loading ? 'Processing...' : 'Proceed to Payment'}
+      </button>
+    </main>
   );
 }
