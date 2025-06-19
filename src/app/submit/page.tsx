@@ -35,7 +35,8 @@ export default function SubmitPage() {
   const handleCardChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value, type, checked } = e.target;
+    const target = e.target as HTMLInputElement;
+    const { name, value, type, checked } = target;
     setCard((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
@@ -43,13 +44,8 @@ export default function SubmitPage() {
   };
 
   const handleAddToCart = () => {
-    const {
-      fullName, email, address, city, state, zip
-    } = customerInfo;
-
-    const {
-      name, year, brand, cardNumber, category, grading, insurance
-    } = card;
+    const { fullName, email, address, city, state, zip } = customerInfo;
+    const { name, year, brand, cardNumber, category, grading, insurance } = card;
 
     if (!fullName || !email || !address || !city || !state || !zip) {
       alert('Please complete all customer fields.');
@@ -101,7 +97,6 @@ export default function SubmitPage() {
 
     alert('Card added to cart!');
 
-    // Reset card only
     setCard({
       name: '',
       year: '',
@@ -117,91 +112,36 @@ export default function SubmitPage() {
     <main className="max-w-xl mx-auto p-6 space-y-6">
       <h1 className="text-2xl font-bold">Submit Your Cards</h1>
 
+      {/* Customer Info */}
       <section className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
-          <input
-            name="fullName"
-            placeholder="Full Name"
-            value={customerInfo.fullName}
-            onChange={handleCustomerChange}
-            className="border px-3 py-2 rounded"
-          />
-          <input
-            name="email"
-            placeholder="Email"
-            value={customerInfo.email}
-            onChange={handleCustomerChange}
-            className="border px-3 py-2 rounded"
-            type="email"
-          />
-          <input
-            name="address"
-            placeholder="Address"
-            value={customerInfo.address}
-            onChange={handleCustomerChange}
-            className="border px-3 py-2 rounded"
-          />
-          <input
-            name="city"
-            placeholder="City"
-            value={customerInfo.city}
-            onChange={handleCustomerChange}
-            className="border px-3 py-2 rounded"
-          />
-          <input
-            name="state"
-            placeholder="State"
-            value={customerInfo.state}
-            onChange={handleCustomerChange}
-            className="border px-3 py-2 rounded"
-          />
-          <input
-            name="zip"
-            placeholder="ZIP Code"
-            value={customerInfo.zip}
-            onChange={handleCustomerChange}
-            className="border px-3 py-2 rounded"
-          />
+          {['fullName', 'email', 'address', 'city', 'state', 'zip'].map((field) => (
+            <input
+              key={field}
+              name={field}
+              placeholder={field === 'fullName' ? 'Full Name' : field.charAt(0).toUpperCase() + field.slice(1)}
+              value={(customerInfo as any)[field]}
+              onChange={handleCustomerChange}
+              className="border px-3 py-2 rounded"
+              type={field === 'email' ? 'email' : 'text'}
+            />
+          ))}
         </div>
       </section>
 
+      {/* Card Info */}
       <section className="space-y-4">
         <h2 className="text-lg font-semibold">Card #1</h2>
-        <input
-          name="name"
-          placeholder="Card Name"
-          value={card.name}
-          onChange={handleCardChange}
-          className="w-full border px-3 py-2 rounded"
-        />
-        <input
-          name="year"
-          placeholder="Year"
-          value={card.year}
-          onChange={handleCardChange}
-          className="w-full border px-3 py-2 rounded"
-        />
-        <input
-          name="brand"
-          placeholder="Brand"
-          value={card.brand}
-          onChange={handleCardChange}
-          className="w-full border px-3 py-2 rounded"
-        />
-        <input
-          name="cardNumber"
-          placeholder="Card #"
-          value={card.cardNumber}
-          onChange={handleCardChange}
-          className="w-full border px-3 py-2 rounded"
-        />
-        <input
-          name="category"
-          placeholder="Category"
-          value={card.category}
-          onChange={handleCardChange}
-          className="w-full border px-3 py-2 rounded"
-        />
+        {['name', 'year', 'brand', 'cardNumber', 'category'].map((field) => (
+          <input
+            key={field}
+            name={field}
+            placeholder={field === 'cardNumber' ? 'Card #' : field.charAt(0).toUpperCase() + field.slice(1)}
+            value={(card as any)[field]}
+            onChange={handleCardChange}
+            className="w-full border px-3 py-2 rounded"
+          />
+        ))}
         <select
           name="grading"
           value={card.grading}
@@ -224,6 +164,7 @@ export default function SubmitPage() {
         </label>
       </section>
 
+      {/* Buttons */}
       <div className="space-y-3">
         <button
           onClick={handleAddToCart}
