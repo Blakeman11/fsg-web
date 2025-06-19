@@ -7,6 +7,8 @@ const nextConfig = {
   images: {
     domains: ['lcnaotinxwcrzvjmuohd.supabase.co'],
   },
+  // 🔁 Enable middleware matcher for /cart
+  matcher: ['/cart'],
 };
 
 module.exports = nextConfig;
