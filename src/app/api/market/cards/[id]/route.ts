@@ -1,5 +1,8 @@
+// src/app/api/market/cards/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+
+export const dynamic = 'force-dynamic'; // ✅ required for dynamic route handlers
 
 export async function DELETE(
   req: NextRequest,
