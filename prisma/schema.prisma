@@ -50,5 +50,6 @@ model MarketCard {
   imageUrl   String
   variation  String?
   quantity   Int      @default(1)  // Inventory support
+  available  Boolean  @default(true) // Added field
   createdAt  DateTime @default(now())
 }
