@@ -1,12 +1,14 @@
+// src/app/market/[id]/page.tsx
+
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import MarketCardDetail from '@/components/MarketCardDetail';
 
-type MarketCardPageProps = {
+interface MarketCardPageProps {
   params: {
     id: string;
   };
-};
+}
 
 export default async function MarketCardPage({ params }: MarketCardPageProps) {
   const id = parseInt(params.id);
