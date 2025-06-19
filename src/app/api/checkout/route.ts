@@ -15,17 +15,29 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No items in cart' }, { status: 400 });
     }
 
-    // Stripe line items
-    const lineItems = cartItems.map((item: any) => ({
-      price_data: {
-        currency: 'usd',
-        product_data: { name: item.title },
-        unit_amount: Math.round(item.price * 100),
-      },
-      quantity: item.quantity || 1,
-    }));
+    // Safely build Stripe line items
+    const lineItems = cartItems.map((item: any, idx: number) => {
+      const title = item.title ?? `Item ${idx + 1}`;
+      const rawPrice = Number(item.price);
+      const priceInCents = Math.round(isNaN(rawPrice) ? 0 : rawPrice * 100);
 
-    // Add shipping line item
+      if (!priceInCents || priceInCents <= 0) {
+        throw new Error(`Invalid price for item: ${title}`);
+      }
+
+      return {
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: title,
+          },
+          unit_amount: priceInCents,
+        },
+        quantity: item.quantity || 1,
+      };
+    });
+
+    // Shipping = $4.95 + $0.50 per additional item, max $15.95
     const shippingAmount = Math.min(495 + Math.max(cartItems.length - 1, 0) * 50, 1595);
     lineItems.push({
       price_data: {
@@ -36,7 +48,6 @@ export async function POST(req: Request) {
       quantity: 1,
     });
 
-    // Stripe checkout session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: lineItems,
@@ -45,13 +56,13 @@ export async function POST(req: Request) {
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cart`,
       customer_email: email,
       metadata: {
-        cart: JSON.stringify(cartItems), // Moved inventory logic to webhook
+        cart: JSON.stringify(cartItems),
       },
     });
 
     return NextResponse.json({ url: session.url });
-  } catch (err) {
-    console.error('Checkout Error:', err);
+  } catch (err: any) {
+    console.error('Checkout Error:', err.message);
     return NextResponse.json({ error: 'Checkout failed' }, { status: 500 });
   }
 }

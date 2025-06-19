@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { v4 as uuidv4 } from 'uuid';
 
 export default function SubmitPage() {
-  const { addToCart } = useCart();
+  const { cart, addToCart } = useCart();
   const [cards, setCards] = useState([
     {
       id: uuidv4(),
@@ -46,12 +46,43 @@ export default function SubmitPage() {
   };
 
   const submitCards = () => {
-    cards.forEach((card) => {
-      let price = 15;
-      if (card.level === 'Express') price = 25;
-      else if (card.level === 'Freedom Gem') price = 50;
-      else if (card.level === 'Bulk') price = 10;
-      if (card.insurance) price += 10;
+    const validCards = cards.filter(
+      (card) =>
+        card.name.trim() !== '' ||
+        card.year.trim() !== '' ||
+        card.brand.trim() !== '' ||
+        card.cardNumber.trim() !== '' ||
+        card.category.trim() !== ''
+    );
+
+    if (validCards.length === 0) {
+      alert('Please fill out at least one field for each card.');
+      return;
+    }
+
+    validCards.forEach((card) => {
+      const price =
+        (card.level === 'Express'
+          ? 25
+          : card.level === 'Freedom Gem'
+          ? 50
+          : card.level === 'Bulk'
+          ? 10
+          : 15) + (card.insurance ? 10 : 0);
+
+      const duplicate = cart.find(
+        (item) =>
+          item.title === `Grading Submission - ${card.name || card.year + ' ' + card.brand}` &&
+          item.grading === card.level &&
+          item.addHolder === false &&
+          item.quantity === 1 &&
+          item.price === price
+      );
+
+      if (duplicate) {
+        alert(`That card is already in your cart: ${card.name || `${card.year} ${card.brand}`}`);
+        return;
+      }
 
       addToCart({
         id: card.id,
@@ -75,6 +106,7 @@ export default function SubmitPage() {
         insurance: false,
       },
     ]);
+
     alert('Cards added to cart!');
   };
 
