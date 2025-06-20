@@ -1,52 +1,44 @@
-// src/app/api/admin/upload-market/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import * as XLSX from 'xlsx';
+import { parse } from 'csv-parse/sync';
 
 const prisma = new PrismaClient();
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const formData = await req.formData();
-    const file = formData.get('file') as File;
+    const body = await req.text();
+    const records = parse(body, {
+      columns: true,
+      skip_empty_lines: true,
+      trim: true,
+    });
 
-    if (!file) {
-      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
-    }
-
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const workbook = XLSX.read(buffer, { type: 'buffer' });
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(sheet);
-
-    const cleaned = (rows as any[]).map((row) => ({
-      title: row.title || '',
+    const cards = records.map((row: any) => ({
+      title: row.title || 'Untitled',
       playerName: row.playerName || '',
       year: parseInt(row.year) || 0,
       brand: row.brand || '',
-      cardNumber: row.cardNumber?.toString() || '',
-      category: row.category || 'Other',
+      cardNumber: row.cardNumber || '',
+      category: row.category || '',
       condition: row.condition || 'Raw',
       grade: row.grade || 'Raw',
       price: parseFloat(row.price) || 1,
       imageUrl: row.imageUrl || '',
-      variation: row.variation || '',
-      quantity: parseInt(row.quantity) || 1,
-    })).filter((card) => card.title && card.playerName && card.imageUrl);
+      variation: row.variation || 'N/A',
+      quantity: parseInt(row.quantity || '1'),
+    }));
 
-    const results = [];
-    for (const card of cleaned) {
-      const result = await prisma.marketCard.upsert({
-        where: { title: card.title },
-        update: { ...card },
-        create: { ...card },
-      });
-      results.push(result);
-    }
+    // Optional: clear old cards first
+    await prisma.marketCard.deleteMany();
 
-    return NextResponse.json({ success: true, count: results.length });
+    // Bulk insert
+    await prisma.marketCard.createMany({
+      data: cards,
+    });
+
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('❌ Upload market error:', error);
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+    console.error('❌ Upload failed:', error);
+    return NextResponse.json({ success: false, error: 'Upload failed' }, { status: 500 });
   }
 }
