@@ -37,21 +37,20 @@ model CardSubmission {
 }
 
 model MarketCard {
-  id         Int      @id @default(autoincrement())
-  title      String
-  playerName String
-  year       Int?
-  brand      String
-  cardNumber String
-  category   String
-  condition  String?
-  grade      String
-  price      Float
-  imageUrl   String
-  variation  String?
-  quantity   Int      @default(1)     // Inventory support
-  available  Boolean  @default(true)  // Track if card is still active
-  createdAt  DateTime @default(now())
+  id          Int     @id @default(autoincrement())
+  title       String  @unique
+  playerName  String
+  brand       String
+  year        Int
+  cardNumber  String
+  category    String
+  grade       String
+  variation   String
+  imageUrl    String
+  price       Float
+  quantity    Int
+  available   Boolean @default(true)
+  createdAt   DateTime @default(now())
 }
 
 model Order {
