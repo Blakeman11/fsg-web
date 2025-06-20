@@ -29,10 +29,10 @@ export default function UploadMarketPage() {
     const cleaned = cards.map(({ available, ...rest }) => rest);
 
     const res = await fetch('/api/admin/upload-market', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ rows: cleaned }),
-    });
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ cards: cleaned }), // 👈 change 'rows' to 'cards'
+});
 
     setUploading(false);
 

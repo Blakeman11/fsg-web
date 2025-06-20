@@ -1,43 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { parse } from 'csv-parse/sync';
 
 const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.text();
-    const records = parse(body, {
-      columns: true,
-      skip_empty_lines: true,
-      trim: true,
-    });
+    const { cards } = await req.json();
 
-    const cards = records.map((row: any) => ({
-      title: row.title || 'Untitled',
-      playerName: row.playerName || '',
-      year: parseInt(row.year) || 0,
-      brand: row.brand || '',
-      cardNumber: row.cardNumber || '',
-      category: row.category || '',
-      grade: row.grade || 'Raw',
-      price: parseFloat(row.price) || 1,
-      imageUrl: row.imageUrl || '',
-      variation: row.variation || 'N/A',
-      quantity: parseInt(row.quantity || '1'),
+    // Sanitize and map input
+    const cleaned = cards.map((card: any) => ({
+      title: card.title,
+      playerName: card.playerName,
+      year: parseInt(card.year),
+      brand: card.brand,
+      cardNumber: card.cardNumber,
+      category: card.category,
+      grade: card.grade,
+      variation: card.variation || '',
+      price: parseFloat(card.price),
+      imageUrl: card.imageUrl,
+      quantity: parseInt(card.quantity),
     }));
 
-    // Optional: clear old cards first
-    await prisma.marketCard.deleteMany();
-
-    // Bulk insert
     await prisma.marketCard.createMany({
-      data: cards,
+      data: cleaned,
+      skipDuplicates: true, // avoid duplicate titles if unique
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('❌ Upload failed:', error);
-    return NextResponse.json({ success: false, error: 'Upload failed' }, { status: 500 });
+  } catch (err) {
+    console.error('❌ Upload error:', err);
+    return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
   }
 }

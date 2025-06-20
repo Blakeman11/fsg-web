@@ -18,7 +18,6 @@ export default function JoshAndSkPage() {
     price: '',
     imageUrl: '',
     quantity: '',
-    available: true,
     category: '',
   });
 
@@ -39,27 +38,35 @@ export default function JoshAndSkPage() {
   };
 
   const handleSubmit = async () => {
-  const res = await fetch('/api/market', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      ...form,
-      year: parseInt(form.year),
-      price: parseFloat(form.price),
-      quantity: parseInt(form.quantity),
-      available: String(form.available) === 'true',
-    }),
-  });
-
-  if (res.ok) {
-    const newCard = await res.json();
-    setCards([newCard, ...cards]);
-    setForm({
-      title: '', playerName: '', year: '', brand: '', cardNumber: '', variation: '',
-      grade: '', price: '', imageUrl: '', quantity: '', available: true, category: '',
+    const res = await fetch('/api/market', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...form,
+        year: parseInt(form.year),
+        price: parseFloat(form.price),
+        quantity: parseInt(form.quantity),
+      }),
     });
-  }
-};
+
+    if (res.ok) {
+      const newCard = await res.json();
+      setCards([newCard, ...cards]);
+      setForm({
+        title: '',
+        playerName: '',
+        year: '',
+        brand: '',
+        cardNumber: '',
+        variation: '',
+        grade: '',
+        price: '',
+        imageUrl: '',
+        quantity: '',
+        category: '',
+      });
+    }
+  };
 
   const renderCard = (card: any) => (
     <div key={card.id} className="border p-2 rounded w-[180px] text-sm">
@@ -77,7 +84,7 @@ export default function JoshAndSkPage() {
   );
 
   const filtered = cards.filter((card) =>
-    tab === 'available' ? card.available : !card.available
+    tab === 'available' ? card.quantity > 0 : card.quantity === 0
   );
 
   return (
