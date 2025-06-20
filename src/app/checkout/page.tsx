@@ -74,7 +74,10 @@ export default function CheckoutPage() {
         </div>
       ))}
 
-      <div className="border-t pt-4 text-sm space-y-1">
+      <div className="border-t pt-4 text-sm space-y-2">
+        <p className="text-xs text-gray-600 italic">
+          📦 $4.63 flat rate shipping — buy as many cards as you want!
+        </p>
         <p className="flex justify-between">
           <span>Shipping:</span>
           <span>${shippingCost.toFixed(2)}</span>

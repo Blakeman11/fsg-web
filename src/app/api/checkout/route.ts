@@ -37,16 +37,17 @@ export async function POST(req: Request) {
       };
     });
 
-    // Shipping = $4.95 + $0.50 per additional item, max $15.95
-    const shippingAmount = Math.min(495 + Math.max(cartItems.length - 1, 0) * 50, 1595);
-    lineItems.push({
-      price_data: {
-        currency: 'usd',
-        product_data: { name: 'Shipping' },
-        unit_amount: shippingAmount,
-      },
-      quantity: 1,
-    });
+    // Flat shipping rate: $4.63
+const shippingAmount = 463;
+
+lineItems.push({
+  price_data: {
+    currency: 'usd',
+    product_data: { name: 'Shipping (Flat Rate)' },
+    unit_amount: shippingAmount,
+  },
+  quantity: 1,
+});
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
