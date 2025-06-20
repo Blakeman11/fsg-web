@@ -39,27 +39,27 @@ export default function JoshAndSkPage() {
   };
 
   const handleSubmit = async () => {
-    const res = await fetch('/api/market', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...form,
-        year: parseInt(form.year),
-        price: parseFloat(form.price),
-        quantity: parseInt(form.quantity),
-        available: form.available === 'true' || form.available === true,
-      }),
-    });
+  const res = await fetch('/api/market', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      ...form,
+      year: parseInt(form.year),
+      price: parseFloat(form.price),
+      quantity: parseInt(form.quantity),
+      available: String(form.available) === 'true',
+    }),
+  });
 
-    if (res.ok) {
-      const newCard = await res.json();
-      setCards([newCard, ...cards]);
-      setForm({
-        title: '', playerName: '', year: '', brand: '', cardNumber: '', variation: '',
-        grade: '', price: '', imageUrl: '', quantity: '', available: true, category: '',
-      });
-    }
-  };
+  if (res.ok) {
+    const newCard = await res.json();
+    setCards([newCard, ...cards]);
+    setForm({
+      title: '', playerName: '', year: '', brand: '', cardNumber: '', variation: '',
+      grade: '', price: '', imageUrl: '', quantity: '', available: true, category: '',
+    });
+  }
+};
 
   const renderCard = (card: any) => (
     <div key={card.id} className="border p-2 rounded w-[180px] text-sm">
