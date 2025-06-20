@@ -7,13 +7,15 @@ const prisma = new PrismaClient();
 export async function GET() {
   try {
     const cards = await prisma.marketCard.findMany({
-      where: { quantity: { gt: 0 } }, // ✅ only show cards in stock
+      where: {
+        quantity: { gt: 0 }, // ✅ only cards in stock
+      },
       orderBy: { createdAt: 'desc' },
     });
 
     return NextResponse.json(cards);
   } catch (error) {
-    console.error('❌ Failed to fetch market cards:', error);
+    console.error('❌ Market API Error:', error);
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
