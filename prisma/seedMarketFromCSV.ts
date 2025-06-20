@@ -24,7 +24,7 @@ async function main() {
     validCards.push({
       title: card.title,
       playerName: card.playerName,
-      year: card.year,
+      year: parseInt(card.year),
       brand: card.brand,
       variation: card.variation || '',
       cardNumber: card.cardNumber,
@@ -32,6 +32,7 @@ async function main() {
       grade: card.grade || 'Raw',
       price: parseFloat(card.price),
       imageUrl: card.imageUrl,
+      quantity: parseInt(card.quantity) || 1, // Add quantity
     });
   }
 

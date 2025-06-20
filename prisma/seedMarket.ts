@@ -1,4 +1,3 @@
-// prisma/seedMarket.ts
 import { PrismaClient } from '@prisma/client';
 import * as XLSX from 'xlsx';
 import path from 'path';
@@ -11,13 +10,15 @@ const rows = XLSX.utils.sheet_to_json(sheet);
 async function main() {
   const cards = rows.map((row: any) => {
     const playerName = row.playerName || 'Unknown';
-    const year = row.year?.toString() || 'Unknown';
+    const year = parseInt(row.year) || 0;
     const brand = row.brand || 'Unknown';
     const cardNumber = row.cardNumber?.toString() || '';
     const category = row.category || 'unknown';
     const grade = row.grade || 'Raw';
     const price = parseFloat(row.price) || 1;
     const imageUrl = row.imageUrl || '';
+    const variation = row.variation || '';
+    const quantity = parseInt(row.quantity) || 1;
 
     return {
       title: `${year} ${brand} ${playerName} #${cardNumber}`.trim(),
@@ -27,8 +28,11 @@ async function main() {
       cardNumber,
       category,
       grade,
+      variation,
+      quantity,
       price,
       imageUrl,
+      available: true,
     };
   });
 
