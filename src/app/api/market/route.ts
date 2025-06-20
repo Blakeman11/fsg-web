@@ -15,7 +15,34 @@ export async function GET() {
 
     return NextResponse.json(cards);
   } catch (error) {
-    console.error('❌ Market API Error:', error);
+    console.error('❌ Market API Error (GET):', error);
     return new NextResponse('Internal Server Error', { status: 500 });
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+
+    const newCard = await prisma.marketCard.create({
+      data: {
+        title: body.title,
+        playerName: body.playerName,
+        year: parseInt(body.year),
+        brand: body.brand,
+        cardNumber: body.cardNumber,
+        variation: body.variation,
+        grade: body.grade,
+        price: parseFloat(body.price),
+        imageUrl: body.imageUrl,
+        quantity: parseInt(body.quantity),
+        category: body.category,
+      },
+    });
+
+    return NextResponse.json(newCard);
+  } catch (error) {
+    console.error('❌ Market API Error (POST):', error);
+    return new NextResponse('Failed to create card', { status: 500 });
   }
 }

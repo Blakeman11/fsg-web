@@ -1,35 +1,35 @@
-import { NextRequest, NextResponse } from 'next/server';
+// src/app/api/admin/upload-market/route.ts
+import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const { cards } = await req.json();
+    const { rows } = await req.json();
 
-    // Sanitize and map input
-    const cleaned = cards.map((card: any) => ({
+    const formatted = rows.map((card: any) => ({
       title: card.title,
       playerName: card.playerName,
       year: parseInt(card.year),
       brand: card.brand,
       cardNumber: card.cardNumber,
-      category: card.category,
+      variation: card.variation,
       grade: card.grade,
-      variation: card.variation || '',
       price: parseFloat(card.price),
       imageUrl: card.imageUrl,
       quantity: parseInt(card.quantity),
+      category: card.category,
     }));
 
     await prisma.marketCard.createMany({
-      data: cleaned,
-      skipDuplicates: true, // avoid duplicate titles if unique
+      data: formatted,
+      skipDuplicates: true, // optional
     });
 
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error('❌ Upload error:', err);
-    return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
+    return new NextResponse('Cards uploaded successfully', { status: 200 });
+  } catch (error) {
+    console.error('❌ Bulk Upload Error:', error);
+    return new NextResponse('Failed to upload cards', { status: 500 });
   }
 }
