@@ -72,6 +72,7 @@ export async function createMarketCard(data: {
   price: number;
   imageUrl: string;
   variation?: string;
+  quantity: number; // ✅ add this
 }) {
   try {
     return await prisma.marketCard.create({ data });
