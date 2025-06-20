@@ -20,7 +20,6 @@ export async function POST(req: NextRequest) {
       brand: row.brand || '',
       cardNumber: row.cardNumber || '',
       category: row.category || '',
-      condition: row.condition || 'Raw',
       grade: row.grade || 'Raw',
       price: parseFloat(row.price) || 1,
       imageUrl: row.imageUrl || '',

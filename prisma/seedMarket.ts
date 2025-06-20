@@ -32,7 +32,6 @@ async function main() {
       quantity,
       price,
       imageUrl,
-      available: true,
     };
   });
 
