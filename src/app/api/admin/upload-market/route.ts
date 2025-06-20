@@ -7,32 +7,38 @@ export async function POST(req: Request) {
     const { rows } = await req.json();
 
     if (!Array.isArray(rows) || rows.length === 0) {
-      return NextResponse.json({ error: 'Invalid upload data' }, { status: 400 });
+      return NextResponse.json({ error: 'No data provided' }, { status: 400 });
     }
 
-    // Delete existing market cards
+    const cleaned = rows.map((row: any) => ({
+      title: row.title?.toString() || '',
+      playerName: row.playerName?.toString() || '',
+      brand: row.brand?.toString() || '',
+      year: parseInt(row.year),
+      cardNumber: row.cardNumber?.toString() || '',
+      category: row.category?.toString() || '',
+      grade: row.grade?.toString() || '',
+      variation: row.variation?.toString() || '',
+      imageUrl: row.imageUrl?.toString() || '',
+      price: parseFloat(row.price),
+      quantity: parseInt(row.quantity),
+      available: true,
+    })).filter((card) =>
+      card.title && card.playerName && !isNaN(card.year) &&
+      card.imageUrl && !isNaN(card.price) && !isNaN(card.quantity)
+    );
+
+    if (cleaned.length === 0) {
+      return NextResponse.json({ error: 'No valid rows found' }, { status: 400 });
+    }
+
     await prisma.marketCard.deleteMany();
 
-    // Insert new cards
-    await prisma.marketCard.createMany({
-      data: rows.map((row: any) => ({
-        title: row.title,
-        playerName: row.playerName,
-        brand: row.brand,
-        year: parseInt(row.year),
-        cardNumber: row.cardNumber,
-        category: row.category,
-        grade: row.grade,
-        variation: row.variation || '',
-        imageUrl: row.imageUrl,
-        price: parseFloat(row.price),
-        quantity: parseInt(row.quantity),
-      })),
-    });
+    const result = await prisma.marketCard.createMany({ data: cleaned });
 
-    return NextResponse.json({ success: true, message: 'Market updated successfully.' });
+    return NextResponse.json({ success: true, count: result.count });
   } catch (err) {
     console.error('❌ Upload market error:', err);
-    return NextResponse.json({ error: 'Failed to upload market.' }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to upload market' }, { status: 500 });
   }
 }
