@@ -1,4 +1,3 @@
-// src/app/api/admin/upload-market/route.ts
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
@@ -10,29 +9,46 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid upload data' }, { status: 400 });
     }
 
-    // Wipe current market
-    await prisma.marketCard.deleteMany();
+    let added = 0;
+    let skipped = 0;
 
-    // Create new entries
-    const entries = await prisma.marketCard.createMany({
-      data: rows.map((row: any) => ({
-        title: row.title,
-        playerName: row.playerName,
-        brand: row.brand,
-        year: parseInt(row.year),
-        cardNumber: row.cardNumber,
-        category: row.category,
-        grade: row.grade,
-        variation: row.variation || '',
-        imageUrl: row.imageUrl,
-        price: parseFloat(row.price),
-        quantity: parseInt(row.quantity),
-      })),
-    });
+    for (const row of rows) {
+      const exists = await prisma.marketCard.findFirst({
+        where: {
+          title: row.title,
+          year: parseInt(row.year),
+          cardNumber: row.cardNumber,
+          variation: row.variation || '',
+        },
+      });
 
-    return NextResponse.json({ success: true, count: entries.count });
+      if (exists) {
+        skipped++;
+        continue;
+      }
+
+      await prisma.marketCard.create({
+        data: {
+          title: row.title,
+          playerName: row.playerName,
+          brand: row.brand,
+          year: parseInt(row.year),
+          cardNumber: row.cardNumber,
+          category: row.category,
+          grade: row.grade,
+          variation: row.variation || '',
+          imageUrl: row.imageUrl,
+          price: parseFloat(row.price),
+          quantity: parseInt(row.quantity),
+        },
+      });
+
+      added++;
+    }
+
+    return NextResponse.json({ success: true, added, skipped });
   } catch (err) {
-    console.error('Upload market error:', err);
+    console.error('🛑 Upload market error:', err);
     return NextResponse.json({ error: 'Failed to upload market' }, { status: 500 });
   }
 }
