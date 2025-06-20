@@ -27,9 +27,7 @@ export async function POST(req: Request) {
         price: Number(data.price),
         imageUrl: data.imageUrl,
         variation: data.variation || '',
-        condition: data.condition || '',
         quantity: Number(data.quantity || 1),
-        available: true,
       },
     });
 
