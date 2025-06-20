@@ -1,47 +1,52 @@
 // src/app/api/admin/upload-market/route.ts
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { PrismaClient } from '@prisma/client';
+import * as XLSX from 'xlsx';
+
+const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
-    const { rows } = await req.json();
+    const formData = await req.formData();
+    const file = formData.get('file') as File;
 
-    if (!Array.isArray(rows) || rows.length === 0) {
-      return NextResponse.json({ error: 'No data provided' }, { status: 400 });
+    if (!file) {
+      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
 
-    const cleaned = rows.map((row: any) => ({
-      title: row.title?.toString() || '',
-      playerName: row.playerName?.toString() || '',
-      brand: row.brand?.toString() || '',
-      year: parseInt(row.year),
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const workbook = XLSX.read(buffer, { type: 'buffer' });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet);
+
+    const cleaned = (rows as any[]).map((row) => ({
+      title: row.title || '',
+      playerName: row.playerName || '',
+      year: parseInt(row.year) || 0,
+      brand: row.brand || '',
       cardNumber: row.cardNumber?.toString() || '',
-      category: row.category?.toString() || '',
-      grade: row.grade?.toString() || '',
-      variation: row.variation?.toString() || '',
-      imageUrl: row.imageUrl?.toString() || '',
-      price: parseFloat(row.price),
-      quantity: parseInt(row.quantity),
-      available: true,
-    })).filter(card =>
-      card.title && card.playerName && !isNaN(card.year) &&
-      card.imageUrl && !isNaN(card.price) && !isNaN(card.quantity)
-    );
+      category: row.category || 'Other',
+      condition: row.condition || 'Raw',
+      grade: row.grade || 'Raw',
+      price: parseFloat(row.price) || 1,
+      imageUrl: row.imageUrl || '',
+      variation: row.variation || '',
+      quantity: parseInt(row.quantity) || 1,
+    })).filter((card) => card.title && card.playerName && card.imageUrl);
 
-    const upserted = [];
-
+    const results = [];
     for (const card of cleaned) {
       const result = await prisma.marketCard.upsert({
         where: { title: card.title },
         update: { ...card },
         create: { ...card },
       });
-      upserted.push(result);
+      results.push(result);
     }
 
-    return NextResponse.json({ success: true, count: upserted.length });
-  } catch (err) {
-    console.error('❌ Upload market error:', err);
-    return NextResponse.json({ error: 'Failed to upload market' }, { status: 500 });
+    return NextResponse.json({ success: true, count: results.length });
+  } catch (error) {
+    console.error('❌ Upload market error:', error);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
