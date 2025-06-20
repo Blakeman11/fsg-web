@@ -1,19 +1,27 @@
-### 🏆 Freedom Service Grading Scale
+export default function GradingPage() {
+  return (
+    <div className="max-w-2xl mx-auto py-10 px-4">
+      <h1 className="text-3xl font-bold mb-6">🏆 Freedom Service Grading Scale</h1>
 
-#### Freedom Gem – **10+**
-> A flawless card. Perfect centering, sharp corners, pristine surface, and zero visible defects.
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold">Freedom Gem – 10+</h2>
+        <p>A flawless card. Perfect centering, sharp corners, pristine surface, and zero visible defects.</p>
+      </div>
 
-#### Mint Gem – **10**
-> A near-perfect card with 1–2 extremely minor flaws, such as faint surface print lines or micro corner softening.
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold">Mint Gem – 10</h2>
+        <p>A near-perfect card with 1–2 extremely minor flaws, barely visible even under scrutiny.</p>
+      </div>
 
-#### Mint – **9**
-> A high-grade card with minor imperfections like slight off-centering, edge specks, or minor corner issues.
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold">Mint – 9</h2>
+        <p>Minor flaws such as off-centering or slight edge/surface wear. Still a very clean card.</p>
+      </div>
 
-#### Near Mint-Mint – **8**
-> Clean card with a couple noticeable flaws (e.g. moderate centering issues, tiny surface marks, soft corners).
-
-#### Near Mint – **7**
-> Several visible flaws such as edge wear, centering outside ideal range, or surface print defects.
-
-#### Excellent – **6 or lower**
-> Noticeable wear or damage. This includes significant centering issues, multiple edge dings, scratches, etc.
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold">NM-MT – 8</h2>
+        <p>A card with 2–3 visible flaws: light corner touches, light scratches, or slightly more off-centered.</p>
+      </div>
+    </div>
+  );
+}
