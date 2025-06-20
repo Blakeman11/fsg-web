@@ -37,20 +37,21 @@ model CardSubmission {
 }
 
 model MarketCard {
-  id          Int     @id @default(autoincrement())
-  title       String  @unique
-  playerName  String
-  brand       String
-  year        Int
-  cardNumber  String
-  category    String
-  grade       String
-  variation   String
-  imageUrl    String
-  price       Float
-  quantity    Int
-  available   Boolean @default(true)
-  createdAt   DateTime @default(now())
+  id         Int     @id @default(autoincrement())
+  title      String
+  playerName String
+  year       Int
+  brand      String
+  cardNumber String
+  category   String
+  grade      String
+  variation  String
+  condition  String?  // <— ADD THIS LINE
+  price      Float
+  imageUrl   String
+  quantity   Int
+  available  Boolean  @default(true)
+  createdAt  DateTime @default(now())
 }
 
 model Order {
