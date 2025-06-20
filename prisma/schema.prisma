@@ -38,7 +38,7 @@ model CardSubmission {
 
 model MarketCard {
   id         Int     @id @default(autoincrement())
-  title      String
+  title      String  @unique // 👈 Add this
   playerName String
   year       Int
   brand      String
@@ -46,7 +46,7 @@ model MarketCard {
   category   String
   grade      String
   variation  String
-  condition  String?  // <— ADD THIS LINE
+  condition  String?
   price      Float
   imageUrl   String
   quantity   Int
