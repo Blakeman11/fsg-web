@@ -12,23 +12,37 @@ export default function MarketPage() {
 
   useEffect(() => {
     async function fetchCards() {
-      const res = await fetch('/api/market');
-      const data = await res.json();
-      setCards(data);
+      try {
+        const res = await fetch('/api/market');
+        const data = await res.json();
+
+        if (Array.isArray(data)) {
+          setCards(data);
+        } else {
+          console.error('Invalid response format:', data);
+          setCards([]);
+        }
+      } catch (err) {
+        console.error('Failed to fetch cards:', err);
+        setCards([]);
+      }
     }
+
     fetchCards();
   }, []);
 
-  const filteredCards = cards
-    .filter((card) =>
-      `${card.title} ${card.variation}`.toLowerCase().includes(search.toLowerCase())
-    )
-    .filter((card) => category === 'All' || card.category === category)
-    .sort((a, b) => {
-      if (sort === 'low') return a.price - b.price;
-      if (sort === 'high') return b.price - a.price;
-      return 0;
-    });
+  const filteredCards = Array.isArray(cards)
+    ? cards
+        .filter((card) =>
+          `${card.title} ${card.variation}`.toLowerCase().includes(search.toLowerCase())
+        )
+        .filter((card) => category === 'All' || card.category === category)
+        .sort((a, b) => {
+          if (sort === 'low') return a.price - b.price;
+          if (sort === 'high') return b.price - a.price;
+          return 0;
+        })
+    : [];
 
   const categories = ['All', ...Array.from(new Set(cards.map((c) => c.category)))];
 
@@ -69,31 +83,39 @@ export default function MarketPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {filteredCards.map((card) => (
-          <Link
-            key={card.id}
-            href={`/market/${card.id}`}
-            className="border rounded p-2 flex gap-4 hover:shadow"
-          >
-            {card.imageUrl && (
-              <Image
-                src={card.imageUrl}
-                alt={card.title}
-                width={80}
-                height={120}
-                className="rounded border object-contain"
-              />
-            )}
-            <div className="text-sm">
-              <p className="font-semibold leading-tight">{card.title}</p>
-              <p className="text-gray-600 leading-tight text-xs">
-                {card.variation || 'N/A'}
-              </p>
-              <p className="text-blue-600 font-bold mt-1">${card.price}</p>
-              <p className="text-xs text-gray-500">Qty Available: {card.quantity}</p>
-            </div>
-          </Link>
-        ))}
+        {filteredCards.length === 0 ? (
+          <p className="text-center text-gray-500 col-span-full">
+            No cards found.
+          </p>
+        ) : (
+          filteredCards.map((card) => (
+            <Link
+              key={card.id}
+              href={`/market/${card.id}`}
+              className="border rounded p-2 flex gap-4 hover:shadow"
+            >
+              {card.imageUrl && (
+                <Image
+                  src={card.imageUrl}
+                  alt={card.title}
+                  width={80}
+                  height={120}
+                  className="rounded border object-contain"
+                />
+              )}
+              <div className="text-sm">
+                <p className="font-semibold leading-tight">{card.title}</p>
+                <p className="text-gray-600 leading-tight text-xs">
+                  {card.variation || 'N/A'}
+                </p>
+                <p className="text-blue-600 font-bold mt-1">${card.price}</p>
+                <p className="text-xs text-gray-500">
+                  Qty Available: {card.quantity}
+                </p>
+              </div>
+            </Link>
+          ))
+        )}
       </div>
     </main>
   );
