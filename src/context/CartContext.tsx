@@ -45,7 +45,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = () => setCart([]);
 
-  const shippingCost = cart.length > 0 ? 5 : 0;
+  const shippingCost = cart.length > 0 ? 4.63 : 0;
   const totalItemPrice = cart.reduce((sum, item) => sum + item.price, 0);
   const totalWithShipping = totalItemPrice + shippingCost;
 
