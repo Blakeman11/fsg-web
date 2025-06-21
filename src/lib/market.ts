@@ -1,40 +1,30 @@
-import { PrismaClient } from '@prisma/client';
+// lib/market.ts
 
-const prisma = new PrismaClient();
-
-// Fetch all market cards
+// Fetch all cards from the marketplace
 export async function getMarketCards() {
-  try {
-    return await prisma.marketCard.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
-  } catch (error) {
-    console.error('❌ Failed to fetch market cards:', error);
-    return [];
-  }
+  const res = await fetch('/api/market');
+  if (!res.ok) throw new Error('Failed to fetch market cards');
+  return res.json();
 }
 
-// Delete a market card by ID
+// Add a new market card
+export async function addMarketCard(card: any) {
+  const res = await fetch('/api/market', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(card),
+  });
+
+  if (!res.ok) throw new Error('Failed to add market card');
+  return res.json();
+}
+
+// Delete a market card by ID (server-side API handles DB logic)
 export async function deleteMarketCard(id: number) {
-  try {
-    await prisma.marketCard.delete({
-      where: { id },
-    });
-  } catch (error) {
-    console.error('❌ Failed to delete market card:', error);
-    throw error;
-  }
-}
+  const res = await fetch(`/api/admin/delete-market/${id}`, {
+    method: 'DELETE',
+  });
 
-// Update a market card by ID
-export async function updateMarketCard(id: number, data: any) {
-  try {
-    await prisma.marketCard.update({
-      where: { id },
-      data,
-    });
-  } catch (error) {
-    console.error('❌ Failed to update market card:', error);
-    throw error;
-  }
+  if (!res.ok) throw new Error('Failed to delete market card');
+  return res.json();
 }
