@@ -1,21 +1,17 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-): Promise<NextResponse> {
+  req: Request,
+  context: { params: { id: string } }
+) {
   try {
-    const id = parseInt(params.id);
-
-    if (isNaN(id)) {
-      return new NextResponse('Invalid ID', { status: 400 });
-    }
+    const { id } = context.params;
 
     const deleted = await prisma.marketCard.delete({
-      where: { id },
+      where: { id: parseInt(id) },
     });
 
     return NextResponse.json(deleted);
