@@ -1,23 +1,25 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import type { NextRequest } from 'next/server';
 
 const prisma = new PrismaClient();
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise id: string } }
+  context: { params: { id: string } }
 ): Promise<NextResponse> {
   try {
-    const cardId = parseInt(params.id);
+    const id = parseInt(context.params.id);
+    if (isNaN(id)) {
+      return new NextResponse('Invalid ID', { status: 400 });
+    }
 
     const deleted = await prisma.marketCard.delete({
-      where: { id: cardId },
+      where: { id },
     });
 
     return NextResponse.json(deleted);
-  } catch (error) {
-    console.error('❌ Delete Error:', error);
-    return new NextResponse('Failed to delete card', { status: 500 });
+  } catch (err) {
+    console.error('❌ Delete Error:', err);
+    return new NextResponse('Delete failed', { status: 500 });
   }
 }
