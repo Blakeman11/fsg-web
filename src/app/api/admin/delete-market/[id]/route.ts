@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise { id: string } }
+  { params }: { params: Promise id: string } }
 ): Promise<NextResponse> {
   try {
     const cardId = parseInt(params.id);
