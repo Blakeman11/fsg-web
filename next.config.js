@@ -5,10 +5,12 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   images: {
-    domains: ['lcnaotinxwcrzvjmuohd.supabase.co'],
+    domains: [
+      'lcnaotinxwcrzvjmuohd.supabase.co',
+      'www.tcdb.com', // ✅ add this if you plan to display TCDB images
+    ],
   },
-  // 🔁 Enable middleware matcher for /cart
-  matcher: ['/cart'],
+  // Remove invalid `matcher` key (it's not valid at this level in Next config)
 };
 
 module.exports = nextConfig;
