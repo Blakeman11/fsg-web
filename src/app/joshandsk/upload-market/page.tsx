@@ -26,13 +26,13 @@ export default function UploadMarketPage() {
     if (!cards.length) return;
     setUploading(true);
 
-    const cleaned = cards.map(({ available, ...rest }) => rest);
+    const cleaned = cards.map(({ available, ...rest }) => rest); // remove legacy field
 
     const res = await fetch('/api/admin/upload-market', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ cards: cleaned }), // 👈 change 'rows' to 'cards'
-});
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rows: cleaned }), // ✅ corrected key here
+    });
 
     setUploading(false);
 
